@@ -1,5 +1,10 @@
 version: '3.8'
 services:
+  app:
+    container_name: golang_openapi_playground
+    build: .
+    ports:
+      - 8787:1323
   mysql:
     image: mysql:latest
     restart: always
