@@ -7,3 +7,6 @@ tmp
 .idea
 # VSCode
 .vscode
+
+# Auto generated code
+generated
