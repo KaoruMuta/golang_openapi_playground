@@ -7,10 +7,16 @@ Tool comparison for schema driven development with OpenAPI & Golang
 - [ogen](https://github.com/ogen-go/ogen)
 
 > [!NOTE]
-> In premise, this project expects you installed [Air](https://github.com/cosmtrek/air) in your local. (You can install Air by `make install`)
+> In premise, this project requires docker to run apps.
 
 ## How to run
 
 ```bash
+# in docker container
+make up
+
+# in local
 make run
 ```
+
+And access to `http://localhost:8787`
