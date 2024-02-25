@@ -45,7 +45,14 @@ func (t *TaskHandler) GetTasks(ctx echo.Context) error {
 
 // PartiallyUpdateTask implements generated.ServerInterface.
 func (t *TaskHandler) PartiallyUpdateTask(ctx echo.Context) error {
-	panic("unimplemented")
+	var req generated.PartiallyUpdateTaskJSONRequestBody
+	if err := ctx.Bind(&req); err != nil {
+		return err
+	}
+	if err := t.r.PartiallyUpdateTask(req); err != nil {
+		return err
+	}
+	return ctx.NoContent(http.StatusNoContent)
 }
 
 // UpdateTask implements generated.ServerInterface.

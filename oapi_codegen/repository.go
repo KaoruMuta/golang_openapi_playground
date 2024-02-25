@@ -10,6 +10,7 @@ type TaskRepository interface {
 	FetchTasks() ([]generated.Task, error)
 	CreateTask(task generated.Task) error
 	UpdateTask(task generated.Task) error
+	PartiallyUpdateTask(task generated.Task) error
 }
 
 type TaskRepositoryImpl struct {
@@ -36,6 +37,13 @@ func (t *TaskRepositoryImpl) CreateTask(task generated.Task) error {
 }
 
 func (t *TaskRepositoryImpl) UpdateTask(task generated.Task) error {
+	if res := t.db.Save(&task); res.Error != nil {
+		return res.Error
+	}
+	return nil
+}
+
+func (t *TaskRepositoryImpl) PartiallyUpdateTask(task generated.Task) error {
 	if res := t.db.Save(&task); res.Error != nil {
 		return res.Error
 	}
