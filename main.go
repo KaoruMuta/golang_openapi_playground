@@ -10,6 +10,7 @@ import (
 
 	oapicodegen "golang_openapi_playground/oapi_codegen"
 	"golang_openapi_playground/oapi_codegen/generated"
+	"golang_openapi_playground/repository"
 )
 
 func main() {
@@ -19,10 +20,10 @@ func main() {
 		slog.Error("Failed to connect DB via gorm", "reason", err)
 	}
 	db.Logger = db.Logger.LogMode(logger.Info)
-	r := oapicodegen.NewRepository(db)
-	h := oapicodegen.NewTaskHandler(r)
+	r := repository.NewRepository(db)
+	oapicodegenHandler := oapicodegen.NewTaskHandler(r)
 
 	e := echo.New()
-	generated.RegisterHandlers(e, h)
+	generated.RegisterHandlers(e, oapicodegenHandler)
 	e.Logger.Fatal(e.Start(":1323"))
 }

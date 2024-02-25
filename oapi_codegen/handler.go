@@ -1,18 +1,21 @@
 package oapicodegen
 
 import (
-	"golang_openapi_playground/oapi_codegen/generated"
 	"log/slog"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+
+	"golang_openapi_playground/model"
+	"golang_openapi_playground/oapi_codegen/generated"
+	"golang_openapi_playground/repository"
 )
 
 type TaskHandler struct {
-	r TaskRepository
+	r repository.TaskRepository
 }
 
-func NewTaskHandler(r TaskRepository) *TaskHandler {
+func NewTaskHandler(r repository.TaskRepository) *TaskHandler {
 	return &TaskHandler{r: r}
 }
 
@@ -22,7 +25,11 @@ func (t *TaskHandler) CreateTask(ctx echo.Context) error {
 	if err := ctx.Bind(&req); err != nil {
 		return err
 	}
-	if err := t.r.CreateTask(req); err != nil {
+	task := model.Task{
+		Title:     *req.Title,
+		Completed: *req.Completed,
+	}
+	if err := t.r.CreateTask(task); err != nil {
 		return err
 	}
 	return ctx.NoContent(http.StatusCreated)
@@ -52,7 +59,8 @@ func (t *TaskHandler) PartiallyUpdateTask(ctx echo.Context) error {
 	if err := ctx.Bind(&req); err != nil {
 		return err
 	}
-	if err := t.r.PartiallyUpdateTask(req); err != nil {
+	task := model.GetTaskFrom(req)
+	if err := t.r.PartiallyUpdateTask(task); err != nil {
 		return err
 	}
 	return ctx.NoContent(http.StatusNoContent)
@@ -64,7 +72,8 @@ func (t *TaskHandler) UpdateTask(ctx echo.Context) error {
 	if err := ctx.Bind(&req); err != nil {
 		return err
 	}
-	if err := t.r.UpdateTask(req); err != nil {
+	task := model.GetTaskFrom(req)
+	if err := t.r.UpdateTask(task); err != nil {
 		return err
 	}
 	return ctx.NoContent(http.StatusNoContent)
