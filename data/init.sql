@@ -1,14 +1,15 @@
 CREATE TABLE tasks (
-    id VARCHAR(255),
+    id TINYINT NOT NULL AUTO_INCREMENT,
     title VARCHAR(255),
-    completed BOOLEAN
+    completed BOOLEAN,
+    PRIMARY KEY (id)
 );
 
 INSERT INTO
-    tasks (id, title, completed)
+    tasks (title, completed)
 VALUES
-    ('1', 'Task 1', true),
-    ('2', 'Task 2', false),
-    ('3', 'Task 3', true),
-    ('4', 'Task 4', false),
-    ('5', 'Task 5', true);
+    ('Task 1', true),
+    ('Task 2', false),
+    ('Task 3', true),
+    ('Task 4', false),
+    ('Task 5', true);
