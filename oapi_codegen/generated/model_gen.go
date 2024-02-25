@@ -10,11 +10,11 @@ type Task struct {
 	Title     *string `json:"title,omitempty"`
 }
 
-// CreateTaskJSONRequestBody defines body for CreateTask for application/json ContentType.
-type CreateTaskJSONRequestBody = Task
-
 // PartiallyUpdateTaskJSONRequestBody defines body for PartiallyUpdateTask for application/json ContentType.
 type PartiallyUpdateTaskJSONRequestBody = Task
+
+// CreateTaskJSONRequestBody defines body for CreateTask for application/json ContentType.
+type CreateTaskJSONRequestBody = Task
 
 // UpdateTaskJSONRequestBody defines body for UpdateTask for application/json ContentType.
 type UpdateTaskJSONRequestBody = Task

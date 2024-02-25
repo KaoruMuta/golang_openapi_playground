@@ -44,11 +44,11 @@ func (t *TaskHandler) GetTasks(ctx echo.Context) error {
 }
 
 // PartiallyUpdateTask implements generated.ServerInterface.
-func (t *TaskHandler) PartiallyUpdateTask(ctx echo.Context, id int) error {
+func (t *TaskHandler) PartiallyUpdateTask(ctx echo.Context) error {
 	panic("unimplemented")
 }
 
 // UpdateTask implements generated.ServerInterface.
-func (t *TaskHandler) UpdateTask(ctx echo.Context, id int) error {
+func (t *TaskHandler) UpdateTask(ctx echo.Context) error {
 	panic("unimplemented")
 }

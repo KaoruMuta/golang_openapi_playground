@@ -92,27 +92,51 @@ type ClientInterface interface {
 	// GetTasks request
 	GetTasks(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// PartiallyUpdateTaskWithBody request with any body
+	PartiallyUpdateTaskWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PartiallyUpdateTask(ctx context.Context, body PartiallyUpdateTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CreateTaskWithBody request with any body
 	CreateTaskWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateTask(ctx context.Context, body CreateTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// UpdateTaskWithBody request with any body
+	UpdateTaskWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateTask(ctx context.Context, body UpdateTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// DeleteTask request
 	DeleteTask(ctx context.Context, id int, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// PartiallyUpdateTaskWithBody request with any body
-	PartiallyUpdateTaskWithBody(ctx context.Context, id int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	PartiallyUpdateTask(ctx context.Context, id int, body PartiallyUpdateTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// UpdateTaskWithBody request with any body
-	UpdateTaskWithBody(ctx context.Context, id int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	UpdateTask(ctx context.Context, id int, body UpdateTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetTasks(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetTasksRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PartiallyUpdateTaskWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPartiallyUpdateTaskRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PartiallyUpdateTask(ctx context.Context, body PartiallyUpdateTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPartiallyUpdateTaskRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -147,56 +171,32 @@ func (c *Client) CreateTask(ctx context.Context, body CreateTaskJSONRequestBody,
 	return c.Client.Do(req)
 }
 
+func (c *Client) UpdateTaskWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateTaskRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateTask(ctx context.Context, body UpdateTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateTaskRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) DeleteTask(ctx context.Context, id int, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteTaskRequest(c.Server, id)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) PartiallyUpdateTaskWithBody(ctx context.Context, id int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPartiallyUpdateTaskRequestWithBody(c.Server, id, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) PartiallyUpdateTask(ctx context.Context, id int, body PartiallyUpdateTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPartiallyUpdateTaskRequest(c.Server, id, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) UpdateTaskWithBody(ctx context.Context, id int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateTaskRequestWithBody(c.Server, id, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) UpdateTask(ctx context.Context, id int, body UpdateTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateTaskRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -230,6 +230,46 @@ func NewGetTasksRequest(server string) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewPartiallyUpdateTaskRequest calls the generic PartiallyUpdateTask builder with application/json body
+func NewPartiallyUpdateTaskRequest(server string, body PartiallyUpdateTaskJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPartiallyUpdateTaskRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPartiallyUpdateTaskRequestWithBody generates requests for PartiallyUpdateTask with any type of body
+func NewPartiallyUpdateTaskRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/tasks")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -274,6 +314,46 @@ func NewCreateTaskRequestWithBody(server string, contentType string, body io.Rea
 	return req, nil
 }
 
+// NewUpdateTaskRequest calls the generic UpdateTask builder with application/json body
+func NewUpdateTaskRequest(server string, body UpdateTaskJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateTaskRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewUpdateTaskRequestWithBody generates requests for UpdateTask with any type of body
+func NewUpdateTaskRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/tasks")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewDeleteTaskRequest generates requests for DeleteTask
 func NewDeleteTaskRequest(server string, id int) (*http.Request, error) {
 	var err error
@@ -304,100 +384,6 @@ func NewDeleteTaskRequest(server string, id int) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	return req, nil
-}
-
-// NewPartiallyUpdateTaskRequest calls the generic PartiallyUpdateTask builder with application/json body
-func NewPartiallyUpdateTaskRequest(server string, id int, body PartiallyUpdateTaskJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewPartiallyUpdateTaskRequestWithBody(server, id, "application/json", bodyReader)
-}
-
-// NewPartiallyUpdateTaskRequestWithBody generates requests for PartiallyUpdateTask with any type of body
-func NewPartiallyUpdateTaskRequestWithBody(server string, id int, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/tasks/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("PATCH", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewUpdateTaskRequest calls the generic UpdateTask builder with application/json body
-func NewUpdateTaskRequest(server string, id int, body UpdateTaskJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewUpdateTaskRequestWithBody(server, id, "application/json", bodyReader)
-}
-
-// NewUpdateTaskRequestWithBody generates requests for UpdateTask with any type of body
-func NewUpdateTaskRequestWithBody(server string, id int, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/tasks/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("PUT", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -448,23 +434,23 @@ type ClientWithResponsesInterface interface {
 	// GetTasksWithResponse request
 	GetTasksWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetTasksResponse, error)
 
+	// PartiallyUpdateTaskWithBodyWithResponse request with any body
+	PartiallyUpdateTaskWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PartiallyUpdateTaskResponse, error)
+
+	PartiallyUpdateTaskWithResponse(ctx context.Context, body PartiallyUpdateTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*PartiallyUpdateTaskResponse, error)
+
 	// CreateTaskWithBodyWithResponse request with any body
 	CreateTaskWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateTaskResponse, error)
 
 	CreateTaskWithResponse(ctx context.Context, body CreateTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateTaskResponse, error)
 
+	// UpdateTaskWithBodyWithResponse request with any body
+	UpdateTaskWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateTaskResponse, error)
+
+	UpdateTaskWithResponse(ctx context.Context, body UpdateTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateTaskResponse, error)
+
 	// DeleteTaskWithResponse request
 	DeleteTaskWithResponse(ctx context.Context, id int, reqEditors ...RequestEditorFn) (*DeleteTaskResponse, error)
-
-	// PartiallyUpdateTaskWithBodyWithResponse request with any body
-	PartiallyUpdateTaskWithBodyWithResponse(ctx context.Context, id int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PartiallyUpdateTaskResponse, error)
-
-	PartiallyUpdateTaskWithResponse(ctx context.Context, id int, body PartiallyUpdateTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*PartiallyUpdateTaskResponse, error)
-
-	// UpdateTaskWithBodyWithResponse request with any body
-	UpdateTaskWithBodyWithResponse(ctx context.Context, id int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateTaskResponse, error)
-
-	UpdateTaskWithResponse(ctx context.Context, id int, body UpdateTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateTaskResponse, error)
 }
 
 type GetTasksResponse struct {
@@ -489,10 +475,30 @@ func (r GetTasksResponse) StatusCode() int {
 	return 0
 }
 
+type PartiallyUpdateTaskResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r PartiallyUpdateTaskResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PartiallyUpdateTaskResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type CreateTaskResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON201      *Task
 }
 
 // Status returns HTTPResponse.Status
@@ -505,6 +511,27 @@ func (r CreateTaskResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateTaskResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateTaskResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateTaskResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateTaskResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -532,50 +559,6 @@ func (r DeleteTaskResponse) StatusCode() int {
 	return 0
 }
 
-type PartiallyUpdateTaskResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *Task
-}
-
-// Status returns HTTPResponse.Status
-func (r PartiallyUpdateTaskResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r PartiallyUpdateTaskResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type UpdateTaskResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *Task
-}
-
-// Status returns HTTPResponse.Status
-func (r UpdateTaskResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r UpdateTaskResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 // GetTasksWithResponse request returning *GetTasksResponse
 func (c *ClientWithResponses) GetTasksWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetTasksResponse, error) {
 	rsp, err := c.GetTasks(ctx, reqEditors...)
@@ -583,6 +566,23 @@ func (c *ClientWithResponses) GetTasksWithResponse(ctx context.Context, reqEdito
 		return nil, err
 	}
 	return ParseGetTasksResponse(rsp)
+}
+
+// PartiallyUpdateTaskWithBodyWithResponse request with arbitrary body returning *PartiallyUpdateTaskResponse
+func (c *ClientWithResponses) PartiallyUpdateTaskWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PartiallyUpdateTaskResponse, error) {
+	rsp, err := c.PartiallyUpdateTaskWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePartiallyUpdateTaskResponse(rsp)
+}
+
+func (c *ClientWithResponses) PartiallyUpdateTaskWithResponse(ctx context.Context, body PartiallyUpdateTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*PartiallyUpdateTaskResponse, error) {
+	rsp, err := c.PartiallyUpdateTask(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePartiallyUpdateTaskResponse(rsp)
 }
 
 // CreateTaskWithBodyWithResponse request with arbitrary body returning *CreateTaskResponse
@@ -602,6 +602,23 @@ func (c *ClientWithResponses) CreateTaskWithResponse(ctx context.Context, body C
 	return ParseCreateTaskResponse(rsp)
 }
 
+// UpdateTaskWithBodyWithResponse request with arbitrary body returning *UpdateTaskResponse
+func (c *ClientWithResponses) UpdateTaskWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateTaskResponse, error) {
+	rsp, err := c.UpdateTaskWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateTaskResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateTaskWithResponse(ctx context.Context, body UpdateTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateTaskResponse, error) {
+	rsp, err := c.UpdateTask(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateTaskResponse(rsp)
+}
+
 // DeleteTaskWithResponse request returning *DeleteTaskResponse
 func (c *ClientWithResponses) DeleteTaskWithResponse(ctx context.Context, id int, reqEditors ...RequestEditorFn) (*DeleteTaskResponse, error) {
 	rsp, err := c.DeleteTask(ctx, id, reqEditors...)
@@ -609,40 +626,6 @@ func (c *ClientWithResponses) DeleteTaskWithResponse(ctx context.Context, id int
 		return nil, err
 	}
 	return ParseDeleteTaskResponse(rsp)
-}
-
-// PartiallyUpdateTaskWithBodyWithResponse request with arbitrary body returning *PartiallyUpdateTaskResponse
-func (c *ClientWithResponses) PartiallyUpdateTaskWithBodyWithResponse(ctx context.Context, id int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PartiallyUpdateTaskResponse, error) {
-	rsp, err := c.PartiallyUpdateTaskWithBody(ctx, id, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParsePartiallyUpdateTaskResponse(rsp)
-}
-
-func (c *ClientWithResponses) PartiallyUpdateTaskWithResponse(ctx context.Context, id int, body PartiallyUpdateTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*PartiallyUpdateTaskResponse, error) {
-	rsp, err := c.PartiallyUpdateTask(ctx, id, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParsePartiallyUpdateTaskResponse(rsp)
-}
-
-// UpdateTaskWithBodyWithResponse request with arbitrary body returning *UpdateTaskResponse
-func (c *ClientWithResponses) UpdateTaskWithBodyWithResponse(ctx context.Context, id int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateTaskResponse, error) {
-	rsp, err := c.UpdateTaskWithBody(ctx, id, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseUpdateTaskResponse(rsp)
-}
-
-func (c *ClientWithResponses) UpdateTaskWithResponse(ctx context.Context, id int, body UpdateTaskJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateTaskResponse, error) {
-	rsp, err := c.UpdateTask(ctx, id, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseUpdateTaskResponse(rsp)
 }
 
 // ParseGetTasksResponse parses an HTTP response from a GetTasksWithResponse call
@@ -671,48 +654,6 @@ func ParseGetTasksResponse(rsp *http.Response) (*GetTasksResponse, error) {
 	return response, nil
 }
 
-// ParseCreateTaskResponse parses an HTTP response from a CreateTaskWithResponse call
-func ParseCreateTaskResponse(rsp *http.Response) (*CreateTaskResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &CreateTaskResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
-		var dest Task
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON201 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseDeleteTaskResponse parses an HTTP response from a DeleteTaskWithResponse call
-func ParseDeleteTaskResponse(rsp *http.Response) (*DeleteTaskResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &DeleteTaskResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
 // ParsePartiallyUpdateTaskResponse parses an HTTP response from a PartiallyUpdateTaskWithResponse call
 func ParsePartiallyUpdateTaskResponse(rsp *http.Response) (*PartiallyUpdateTaskResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -726,14 +667,20 @@ func ParsePartiallyUpdateTaskResponse(rsp *http.Response) (*PartiallyUpdateTaskR
 		HTTPResponse: rsp,
 	}
 
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Task
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
+	return response, nil
+}
 
+// ParseCreateTaskResponse parses an HTTP response from a CreateTaskWithResponse call
+func ParseCreateTaskResponse(rsp *http.Response) (*CreateTaskResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateTaskResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil
@@ -752,14 +699,20 @@ func ParseUpdateTaskResponse(rsp *http.Response) (*UpdateTaskResponse, error) {
 		HTTPResponse: rsp,
 	}
 
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Task
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
+	return response, nil
+}
 
+// ParseDeleteTaskResponse parses an HTTP response from a DeleteTaskWithResponse call
+func ParseDeleteTaskResponse(rsp *http.Response) (*DeleteTaskResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteTaskResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil
