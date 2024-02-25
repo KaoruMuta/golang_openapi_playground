@@ -1,15 +1,15 @@
 package main
 
 import (
-	"net/http"
+	oapicodegen "golang_openapi_playground/oapi_codegen"
+	"golang_openapi_playground/oapi_codegen/generated"
 
 	"github.com/labstack/echo/v4"
 )
 
 func main() {
 	e := echo.New()
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello openapi & golang playground")
-	})
+	handler := oapicodegen.NewTaskHandler()
+	generated.RegisterHandlers(e, handler)
 	e.Logger.Fatal(e.Start(":1323"))
 }
