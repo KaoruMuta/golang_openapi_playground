@@ -10,11 +10,17 @@ type Task struct {
 	Title     *string `json:"title,omitempty"`
 }
 
+// TaskForCreate defines model for TaskForCreate.
+type TaskForCreate struct {
+	Completed *bool   `json:"completed,omitempty"`
+	Title     *string `json:"title,omitempty"`
+}
+
 // PartiallyUpdateTaskJSONRequestBody defines body for PartiallyUpdateTask for application/json ContentType.
 type PartiallyUpdateTaskJSONRequestBody = Task
 
 // CreateTaskJSONRequestBody defines body for CreateTask for application/json ContentType.
-type CreateTaskJSONRequestBody = Task
+type CreateTaskJSONRequestBody = TaskForCreate
 
 // UpdateTaskJSONRequestBody defines body for UpdateTask for application/json ContentType.
 type UpdateTaskJSONRequestBody = Task

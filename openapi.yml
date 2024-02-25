@@ -24,7 +24,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Task'
+              $ref: '#/components/schemas/TaskForCreate'
       responses:
         '201':
           description: Created
@@ -74,6 +74,14 @@ components:
       properties:
         id:
           type: integer
+        title:
+          type: string
+        completed:
+          type: boolean
+
+    TaskForCreate:
+      type: object
+      properties:
         title:
           type: string
         completed:

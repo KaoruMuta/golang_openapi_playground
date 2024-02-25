@@ -8,7 +8,7 @@ import (
 
 type TaskRepository interface {
 	FetchTasks() ([]generated.Task, error)
-	CreateTask(task generated.Task) error
+	CreateTask(task generated.TaskForCreate) error
 	UpdateTask(task generated.Task) error
 	PartiallyUpdateTask(task generated.Task) error
 	DeleteTask(id int) error
@@ -30,7 +30,7 @@ func (t *TaskRepositoryImpl) FetchTasks() ([]generated.Task, error) {
 	return tasks, nil
 }
 
-func (t *TaskRepositoryImpl) CreateTask(task generated.Task) error {
+func (t *TaskRepositoryImpl) CreateTask(task generated.TaskForCreate) error {
 	if res := t.db.Create(&task); res.Error != nil {
 		return res.Error
 	}
