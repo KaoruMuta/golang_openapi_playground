@@ -7,6 +7,8 @@ services:
       - 8787:1323
     depends_on:
       - mysql
+    links:
+      - mysql:dbhost
   mysql:
     image: mysql:latest
     restart: always

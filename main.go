@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	dsn := "dbuser:dbpass@tcp(0.0.0.0:3306)/testdb?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "dbuser:dbpass@tcp(dbhost:3306)/testdb?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		slog.Error("Failed to connect DB via gorm", "reason", err)
