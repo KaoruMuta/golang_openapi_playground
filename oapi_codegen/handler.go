@@ -1,6 +1,7 @@
 package oapicodegen
 
 import (
+	"golang_openapi_playground/oapi_codegen/generated"
 	"log/slog"
 	"net/http"
 
@@ -17,7 +18,14 @@ func NewTaskHandler(r TaskRepository) *TaskHandler {
 
 // CreateTask implements generated.ServerInterface.
 func (t *TaskHandler) CreateTask(ctx echo.Context) error {
-	panic("unimplemented")
+	var req generated.CreateTaskJSONRequestBody
+	if err := ctx.Bind(&req); err != nil {
+		return err
+	}
+	if err := t.r.CreateTask(req); err != nil {
+		return err
+	}
+	return ctx.NoContent(http.StatusCreated)
 }
 
 // DeleteTask implements generated.ServerInterface.
