@@ -1,11 +1,11 @@
-CREATE TABLE task (
+CREATE TABLE tasks (
     id VARCHAR(255),
     title VARCHAR(255),
     completed BOOLEAN
 );
 
 INSERT INTO
-    task (id, title, completed)
+    tasks (id, title, completed)
 VALUES
     ('1', 'Task 1', true),
     ('2', 'Task 2', false),
