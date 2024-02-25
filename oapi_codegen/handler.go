@@ -1,37 +1,46 @@
 package oapicodegen
 
 import (
+	"log/slog"
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 )
 
 type TaskHandler struct {
+	r TaskRepository
 }
 
-func NewTaskHandler() *TaskHandler {
-	return &TaskHandler{}
+func NewTaskHandler(r TaskRepository) *TaskHandler {
+	return &TaskHandler{r: r}
 }
 
 // CreateTask implements generated.ServerInterface.
-func (*TaskHandler) CreateTask(ctx echo.Context) error {
+func (t *TaskHandler) CreateTask(ctx echo.Context) error {
 	panic("unimplemented")
 }
 
 // DeleteTask implements generated.ServerInterface.
-func (*TaskHandler) DeleteTask(ctx echo.Context, id int) error {
+func (t *TaskHandler) DeleteTask(ctx echo.Context, id int) error {
 	panic("unimplemented")
 }
 
 // GetTasks implements generated.ServerInterface.
-func (*TaskHandler) GetTasks(ctx echo.Context) error {
-	panic("unimplemented")
+func (t *TaskHandler) GetTasks(ctx echo.Context) error {
+	res, err := t.r.FetchTasks()
+	if err != nil {
+		return err
+	}
+	slog.Info("Result", "data", res)
+	return ctx.JSON(http.StatusOK, res)
 }
 
 // PartiallyUpdateTask implements generated.ServerInterface.
-func (*TaskHandler) PartiallyUpdateTask(ctx echo.Context, id int) error {
+func (t *TaskHandler) PartiallyUpdateTask(ctx echo.Context, id int) error {
 	panic("unimplemented")
 }
 
 // UpdateTask implements generated.ServerInterface.
-func (*TaskHandler) UpdateTask(ctx echo.Context, id int) error {
+func (t *TaskHandler) UpdateTask(ctx echo.Context, id int) error {
 	panic("unimplemented")
 }
