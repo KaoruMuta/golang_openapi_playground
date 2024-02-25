@@ -11,6 +11,7 @@ type TaskRepository interface {
 	CreateTask(task generated.Task) error
 	UpdateTask(task generated.Task) error
 	PartiallyUpdateTask(task generated.Task) error
+	DeleteTask(id int) error
 }
 
 type TaskRepositoryImpl struct {
@@ -45,6 +46,13 @@ func (t *TaskRepositoryImpl) UpdateTask(task generated.Task) error {
 
 func (t *TaskRepositoryImpl) PartiallyUpdateTask(task generated.Task) error {
 	if res := t.db.Save(&task); res.Error != nil {
+		return res.Error
+	}
+	return nil
+}
+
+func (t *TaskRepositoryImpl) DeleteTask(id int) error {
+	if res := t.db.Delete(&generated.Task{}, id); res.Error != nil {
 		return res.Error
 	}
 	return nil

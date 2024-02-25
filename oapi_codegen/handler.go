@@ -30,7 +30,10 @@ func (t *TaskHandler) CreateTask(ctx echo.Context) error {
 
 // DeleteTask implements generated.ServerInterface.
 func (t *TaskHandler) DeleteTask(ctx echo.Context, id int) error {
-	panic("unimplemented")
+	if err := t.r.DeleteTask(id); err != nil {
+		return err
+	}
+	return ctx.NoContent(http.StatusNoContent)
 }
 
 // GetTasks implements generated.ServerInterface.
