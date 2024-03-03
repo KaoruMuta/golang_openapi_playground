@@ -10,6 +10,7 @@ services:
     links:
       - mysql:dbhost
   mysql:
+    container_name: golang_openapi_playground_mysql
     image: mysql:latest
     restart: always
     environment:
