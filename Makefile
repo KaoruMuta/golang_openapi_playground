@@ -2,6 +2,7 @@
 setup:
 	go install github.com/cosmtrek/air@latest
 	go install github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@latest
+	go install github.com/ogen-go/ogen/cmd/ogen@latest
 	go mod tidy
 
 .PHONY: generate-oapi-codegen
@@ -19,6 +20,12 @@ generate-openapi-generator:
 		-i /app/openapi.yml \
 		-g go \
 		-o /app/openapi_generator/generated
+
+.PHONY: generate-ogen
+generate-ogen:
+	mkdir -p ogen/generated/
+	cd ogen
+	go generate ./...
 
 .PHONY: generate
 generate: generate-oapi-codegen generate-openapi-generator
